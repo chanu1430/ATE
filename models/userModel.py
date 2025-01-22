@@ -9,7 +9,6 @@ class tokenData(BaseModel):
 
 class userModel(BaseModel):
     email:EmailStr
-    clicked:bool = False
     created_at:datetime
     expired_at:datetime
     token_details:List[tokenData] = []

@@ -10,7 +10,7 @@ from dataEncryption import decrypt_data,encrypt_data
 from models.userModel import userModel
 from mongoDB import mongodb
 from crudOperations.insertOne import insertUser
-from crudOperations.findOne import findUser
+from crudOperations.findOne import findUserById,findUserByMail
 from crudOperations.updateOne import updateUserStatus
 
 
@@ -26,12 +26,30 @@ async def getApi():
 async def getEmail(token:str = Query(...)):
     try:
         objId,unique_id=decrypt_data(token).split(":")
-        result =await updateUserStatus(objId,unique_id,"Approve")
+        checkUser=findUserById(objId)
+        checkUserToken=False
+        checkUserTokenStatus=None
+        for token in checkUser.token_details:
+            if (token.token_id==unique_id):
+                checkUserToken=True
+                checkUserTokenStatus=token.status
+                break
+            
+        if checkUser:
+            if checkUserToken:
+                if checkUserTokenStatus:
+                    result =await updateUserStatus(objId,unique_id,"Approve")
 
-        if result:
-            return HTMLResponse(f"<h1>Welcome,{objId} !</h1><p>Thank you for your approve response.</p>")
+                    if result:
+                        return HTMLResponse(f"<h1>Welcome,{objId} !</h1><p>Thank you for your response.</p>")
+                    else:
+                        return HTMLResponse(f"<h1>Error,{objId} !</h1><p>Occured</p>")
+                else:
+                    return HTMLResponse(f"<h1>You Have Already Responded to this Request</h1>")
+            else:
+                 return HTMLResponse(f"<h1>Sorry, This user token doesn't exists</h1>")
         else:
-            return HTMLResponse(f"<h1>Error,{objId} !</h1><p>Occured</p>")
+            return HTMLResponse(f"<h1>There is No user with this {objId} !</h1>")
     except Exception as e:
         return HTTPException(status_code=500, detail=f"Failed to update Status: {e}")
     
@@ -42,11 +60,13 @@ async def getEmail(token:str = Query(...)):
 async def getEmail(token:str = Query(...)):
     try:
         objId,unique_id=decrypt_data(token).split(":")
-        result =await updateUserStatus(objId,unique_id,"Decline")
-        if result:
-            return HTMLResponse(f"<h1>Welcome,{objId} !</h1><p>Thank you for your decline response.</p>")
-        else:
-            return HTMLResponse(f"<h1>Error,{objId} !</h1><p>Occured</p>")
+        checkUser=findUserById(objId)
+        if checkUser:
+            result =await updateUserStatus(objId,unique_id,"Decline")
+            if result:
+                return HTMLResponse(f"<h1>Welcome,{objId} !</h1><p>Thank you for your decline response.</p>")
+            else:
+                return HTMLResponse(f"<h1>Error,{objId} !</h1><p>Occured</p>")
     except Exception as e:
         return HTTPException(status_code=500, detail=f"Failed to update Status: {e}")
     
@@ -86,7 +106,7 @@ async def send_email(email: EmailModel):
 
         )
         try:
-            userExists=await findUser(email.email)
+            userExists=await findUserByMail(email.email)
             if userExists:
                 print("user Already exists...................!")
                 obj_id=userExists['_id']
