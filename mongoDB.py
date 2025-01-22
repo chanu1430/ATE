@@ -1,8 +1,7 @@
 
 from motor.motor_asyncio import AsyncIOMotorClient
 
-uri = "mongodb+srv://chanakyanexus143:<db_password>@cluster0.g8fiv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-
+uri="mongodb+srv://chanakyanexus143:gEoFYo78bWsIAMyR@emailapproval.u5sj3.mongodb.net/?retryWrites=true&w=majority&appName=EmailApproval"
 # Database and Collection Names
 DATABASE_NAME = 'email_db'
 COLLECTION_NAME = 'users'

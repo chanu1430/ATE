@@ -4,9 +4,11 @@ from Crypto.Util.Padding import pad, unpad
 import os
 
 
-key = os.urandom(32)  # AES-256 uses 32 bytes key
-iv = os.urandom(16)  # 16 bytes initialization vector (IV) for CBC mode
+# key = os.urandom(32)  # AES-256 uses 32 bytes key
+# iv = os.urandom(16)  # 16 bytes initialization vector (IV) for CBC mode
 
+key = b'\x9a\x1d\xa9\xe8\xbeTx\x86[\x97\xe5\xd0l\xb5\xa0O\x8f\x06\xae\x89\xd6\xf5\x94\xa9\xe4\xe3\x03\xa2\xd4[1\xc7'
+iv = b'z"\x89_,$\xa4\x9c\x82`\xb0\xb2\xffD{2'
 
 
 def encrypt_data(data: str) -> str:

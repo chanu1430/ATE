@@ -2,9 +2,12 @@ from mongoDB import mongodb
 from bson import ObjectId
 
 async def findUserByMail(email):
-    user=await mongodb.collection.find_one({"email":email})
-    print(user)
-    return user
+    try:
+        user=await mongodb.collection.find_one({"email":email})
+        return user
+    except Exception as e:
+        print(e)
+        return None
 
 async def findUserById(objId):
     obj_id=ObjectId(objId)

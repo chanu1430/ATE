@@ -12,7 +12,7 @@ from mongoDB import mongodb
 from crudOperations.insertOne import insertUser
 from crudOperations.findOne import findUserById,findUserByMail
 from crudOperations.updateOne import updateUserStatus
-
+from checkUserApproval import checkUserApproval
 
 app=FastAPI()
   
@@ -26,32 +26,10 @@ async def getApi():
 async def getEmail(token:str = Query(...)):
     try:
         objId,unique_id=decrypt_data(token).split(":")
-        checkUser=findUserById(objId)
-        checkUserToken=False
-        checkUserTokenStatus=None
-        for token in checkUser.token_details:
-            if (token.token_id==unique_id):
-                checkUserToken=True
-                checkUserTokenStatus=token.status
-                break
-            
-        if checkUser:
-            if checkUserToken:
-                if checkUserTokenStatus:
-                    result =await updateUserStatus(objId,unique_id,"Approve")
-
-                    if result:
-                        return HTMLResponse(f"<h1>Welcome,{objId} !</h1><p>Thank you for your response.</p>")
-                    else:
-                        return HTMLResponse(f"<h1>Error,{objId} !</h1><p>Occured</p>")
-                else:
-                    return HTMLResponse(f"<h1>You Have Already Responded to this Request</h1>")
-            else:
-                 return HTMLResponse(f"<h1>Sorry, This user token doesn't exists</h1>")
-        else:
-            return HTMLResponse(f"<h1>There is No user with this {objId} !</h1>")
+        userData=await findUserById(objId)
+        return await checkUserApproval(userData,unique_id,"Approve")
     except Exception as e:
-        return HTTPException(status_code=500, detail=f"Failed to update Status: {e}")
+        return HTTPException(status_code=500, detail=f"Invalid URL: {e}")
     
 
    
@@ -60,13 +38,8 @@ async def getEmail(token:str = Query(...)):
 async def getEmail(token:str = Query(...)):
     try:
         objId,unique_id=decrypt_data(token).split(":")
-        checkUser=findUserById(objId)
-        if checkUser:
-            result =await updateUserStatus(objId,unique_id,"Decline")
-            if result:
-                return HTMLResponse(f"<h1>Welcome,{objId} !</h1><p>Thank you for your decline response.</p>")
-            else:
-                return HTMLResponse(f"<h1>Error,{objId} !</h1><p>Occured</p>")
+        userData=await findUserById(objId)
+        return await checkUserApproval(userData,unique_id,"Decline")
     except Exception as e:
         return HTTPException(status_code=500, detail=f"Failed to update Status: {e}")
     
@@ -112,22 +85,18 @@ async def send_email(email: EmailModel):
                 obj_id=userExists['_id']
                
             else:
-               
                 obj_id=await insertUser(user_data)
                 print("New User Created......................!")
         except Exception as e:
             return {"message": f"Error Occurs while storing the data : {e}"}
-        
-        print(str(obj_id))
+
         email_body=await emailTemp(email.body,str(obj_id))
-        print("after email_body")
         message = MessageSchema(
             subject=email.subject,
             recipients=[email.email],
             body= email_body,
             subtype="html"
         )
-        print(".........................................//////")
         fm = FastMail(conf)
         await fm.send_message(message)
         return {"message": "Email has been sent successfully"}
