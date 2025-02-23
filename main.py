@@ -1,4 +1,4 @@
-
+import os
 from datetime import datetime,timedelta
 from fastapi import FastAPI, HTTPException,Query
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
@@ -13,9 +13,13 @@ from crudOperations.insertOne import insertUser
 from crudOperations.findOne import findUserById,findUserByMail
 from crudOperations.updateOne import updateUserStatus
 from checkUserApproval import checkUserApproval
+from dotenv import load_dotenv
+
+
 
 app=FastAPI()
   
+load_dotenv()
 
 @app.get('/')
 async def getApi():
@@ -50,13 +54,13 @@ async def getEmail(token:str = Query(...)):
 
 
 conf = ConnectionConfig(
-    MAIL_USERNAME="chanakyanexus143@gmail.com",
-    MAIL_PASSWORD="jwjm eers cmjq cknw",
-    MAIL_FROM="chanakyanexus143@gmail.com",
-    MAIL_PORT=587,
-    MAIL_SERVER="smtp.gmail.com",             # Gmail SMTP server
-    MAIL_STARTTLS=True,                       # Enable STARTTLS encryption
-    MAIL_SSL_TLS=False,                       # Disable SSL/TLS encryption
+    MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
+    MAIL_PASSWORD=os.getenv("MAIL_PASSWORD"),
+    MAIL_FROM=os.getenv("MAIL_FROM"),
+    MAIL_PORT=int(os.getenv("MAIL_PORT",587)),
+    MAIL_SERVER=os.getenv("MAIL_SERVER"),             
+    MAIL_STARTTLS=True,                      
+    MAIL_SSL_TLS=False,                       
     USE_CREDENTIALS=True    
 )
 

@@ -13,8 +13,6 @@ async def updateUserStatus(objId:str, unique_id:str,new_status:str):
 
 
 
-
-
 async def updateUserTokenId(objId:str,token_id:str):
     obj_id=ObjectId(objId)
     token_data={"token_id":token_id,"status":"Pending"}
@@ -23,7 +21,6 @@ async def updateUserTokenId(objId:str,token_id:str):
         {"$push":{"token_details":token_data}}
     )
     return await updatedCount(result)
-
 
 
 async def updatedCount(result):
