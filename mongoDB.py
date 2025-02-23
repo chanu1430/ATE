@@ -1,7 +1,11 @@
 
 from motor.motor_asyncio import AsyncIOMotorClient
+import os
+from dotenv import load_dotenv
 
-uri="mongodb+srv://chanakyanexus143:gEoFYo78bWsIAMyR@emailapproval.u5sj3.mongodb.net/?retryWrites=true&w=majority&appName=EmailApproval"
+load_dotenv()
+
+uri=os.getenv("MONGO_URI")
 # Database and Collection Names
 DATABASE_NAME = 'email_db'
 COLLECTION_NAME = 'users'
