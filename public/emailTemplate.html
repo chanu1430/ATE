@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #ffffff;
+            padding: 20px;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: auto;
+            background: #2d2d2d;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            border: 2px solid #444;
+            text-align: center; /* Centers all content inside */
+        }
+        
+        h2 {
+            color: #f8f8f8 !important;
+            text-align: center;
+            padding-bottom: 20px;
+        }
+        p {
+            color: #f8f8f8 !important;
+            text-align: left;
+        }
+        .table-container {
+            overflow-x: auto;
+            max-width: 100%;
+            margin-bottom: 20px; /* Adds margin below the table */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #000000;
+            padding: 10px;
+            text-align: left;
+            white-space: nowrap;
+            background-color: #ffffff !important;
+        }
+        th {
+            background-color: #ffffff !important;
+        }
+        a {
+            color: #4da6ff;
+            text-decoration: none;
+        }
+        @media (max-width: 600px) {
+            .email-container {
+                width: 90%;
+                padding: 15px;
+            }
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            tr {
+                background-color: #ffffff !important;
+            }
+            th, td {
+                font-size: 14px;
+                padding: 8px;
+            }
+        }
+    
+        #buttons-div {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn-custom {
+            display: inline-block;
+            min-width: 120px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: white !important;
+            text-decoration: none;
+            margin: 5px; 
+        }
+
+        .btn-approve {
+            background-color: #4CAF50;
+        }
+        .btn-reject {
+            background-color: #e05858;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h2>Approval Notification</h2>
+        <p>Dear Compliance Manager,</p>
+        <p>For your information and necessary action, Proof has been uploaded for the following Compliance Activity: {emailBody}</p>
+        <div class="table-container">
+            <table>
+                <tr>
+                    <th>UIN</th>
+                    <th>Location</th>
+                    <th>Compliance Activity</th>
+                    <th>Due Date</th>
+                    <th>Risk</th>
+                </tr>
+                <tr>
+                    <td><a href="#">RPL-20-18827</a></td>
+                    <td>RPL-PUNE</td>
+                    <td>Written permission for advertisement for Telangana under Andhra Pradesh Municipalities Act, 1965</td>
+                    <td>2020-05-20</td>
+                    <td>Medium</td>
+                </tr>
+            </table>
+        </div>
+        <div id="buttons-div">
+            <a href="http://127.0.0.1:8000/get-email/verify/approve?token={encToken}" class="btn-custom btn-approve">
+                Approve
+            </a>
+            <a href="http://127.0.0.1:8000/get-email/verify/decline?token={encToken}" class="btn-custom btn-reject">
+                Reject
+            </a>
+        </div>
+    </div>
+</body>
+</html>

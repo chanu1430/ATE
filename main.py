@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException,Query
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from pydantic import EmailStr, BaseModel
 from fastapi.responses import HTMLResponse
+from fastapi import Request
 from typing import List
 from emailTemplate import emailTemp
 from dataEncryption import decrypt_data,encrypt_data
@@ -14,24 +15,31 @@ from crudOperations.findOne import findUserById,findUserByMail
 from crudOperations.updateOne import updateUserStatus
 from checkUserApproval import checkUserApproval
 from dotenv import load_dotenv
-
-
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from routes.commentsRoute import router as comments_router
 
 app=FastAPI()
-  
+
+app.mount("/public", StaticFiles(directory="public"), name="public")  
+templates = Jinja2Templates(directory="public")
 load_dotenv()
+
 
 @app.get('/')
 async def getApi():
     return {"msg":"Email Get Request"}
 
 
+app.include_router(comments_router,prefix="/comments")
+
+
 @app.get('/get-email/verify/approve/')
-async def getEmail(token:str = Query(...)):
+async def getEmail(request:Request,token:str = Query(...)):
     try:
-        objId,unique_id=decrypt_data(token).split(":")
+        objId,unique_id=decrypt_data(token).split(":")  
         userData=await findUserById(objId)
-        return await checkUserApproval(userData,unique_id,"Approve")
+        return await checkUserApproval(request,userData,unique_id,"Approve")
     except Exception as e:
         return HTTPException(status_code=500, detail=f"Invalid URL: {e}")
     
@@ -39,11 +47,11 @@ async def getEmail(token:str = Query(...)):
    
 
 @app.get('/get-email/verify/decline/')
-async def getEmail(token:str = Query(...)):
+async def getEmail(request:Request,token:str = Query(...)):
     try:
         objId,unique_id=decrypt_data(token).split(":")
         userData=await findUserById(objId)
-        return await checkUserApproval(userData,unique_id,"Decline")
+        return await checkUserApproval(request,userData,unique_id,"Decline",token)
     except Exception as e:
         return HTTPException(status_code=500, detail=f"Failed to update Status: {e}")
     
@@ -74,7 +82,7 @@ class EmailModel(BaseModel):
 
 @app.post("/send-email")
 async def send_email(email: EmailModel):
-   
+    fm = FastMail(conf)
     try:
         user_data=userModel(
              email=email.email,
@@ -101,7 +109,8 @@ async def send_email(email: EmailModel):
             body= email_body,
             subtype="html"
         )
-        fm = FastMail(conf)
+
+        
         await fm.send_message(message)
         return {"message": "Email has been sent successfully"}
     except Exception as e: 

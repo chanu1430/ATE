@@ -10,6 +10,14 @@ async def updateUserStatus(objId:str, unique_id:str,new_status:str):
     )
     return await updatedCount(result)
 
+async def updateUserStatusAndComments(objId:str, unique_id:str,new_status:str,comments:str):
+    obj_id=ObjectId(objId)
+    result=await mongodb.collection.update_one(
+        {"_id":obj_id,
+         "token_details.token_id":unique_id},
+        {"$set": {"token_details.$.status": new_status, "token_details.$.comments": comments}}
+    )
+    return await updatedCount(result)
 
 
 

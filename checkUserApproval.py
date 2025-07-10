@@ -1,25 +1,43 @@
 from fastapi.responses import HTMLResponse
-from crudOperations.updateOne import updateUserStatus
+from fastapi.templating import Jinja2Templates
+from crudOperations.updateOne import updateUserStatus,updateUserStatusAndComments
+from fastapi import Request
 
-async def checkUserApproval(userData:dict,unique_id:str,status:str):
+templates = Jinja2Templates(directory="public")
+
+async def checkUserApproval(request:Request,userData:dict,unique_id:str,status:str,urlToken:str=None):
     try:
+        # print("----------------token:"+token+"--------------------")
         checkUserToken=False
         checkUserTokenStatus=None
         objId=userData["_id"]
         if userData:
             user_token_details=userData["token_details"]
-            for token in  user_token_details:
-                if (token["token_id"]==unique_id):
+            for eachToken in  user_token_details:
+                if (eachToken["token_id"]==unique_id):
                     checkUserToken=True
-                    checkUserTokenStatus=token["status"]
+                    checkUserTokenStatus=eachToken["status"]
                     break
             if checkUserToken:
                 if checkUserTokenStatus=="Pending":
-                    result =await updateUserStatus(objId,unique_id,status)
-                    if result:
-                        return HTMLResponse(f"<h1>Welcome User !</h1><p>Thank you for your response. {status}</p>")
+                    if status=="Approve":
+                        result =await updateUserStatus(objId,unique_id,status)
+                        # print("--------------------------------")
+                        # print(result)
+                        # print("--------------------------------")
+                        if result:
+                            return HTMLResponse(f"<h1>Welcome User !</h1><p>Thank you for your response. {status}</p>")
+                        else:
+                            return HTMLResponse(f"<h1>Unable to update the token status</h1>")
                     else:
-                        return HTMLResponse(f"<h1>Unable to update the token status</h1>")
+                        if urlToken is not None:
+                            return templates.TemplateResponse("rejectTemplate.html", {
+                                "request": request,
+                                "message": f"Thank you for your response.",
+                                "token":urlToken
+                                })
+                        else:
+                            return HTMLResponse(f"<h1>Request must have valid token</h1>")
                 else:
                     return HTMLResponse(f"<h1>You Have Already Responded to this Request</h1>")
             else:

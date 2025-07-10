@@ -12,7 +12,6 @@ async def findUserByMail(email):
 async def findUserById(objId):
     obj_id=ObjectId(objId)
     user=await mongodb.collection.find_one({"_id":obj_id})
-    print(user)
     return user
 
 async def findUserStatus(objId,uniqueId):

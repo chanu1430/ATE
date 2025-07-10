@@ -1,11 +1,13 @@
 from datetime import datetime
-from typing import List
+from typing import List,Optional
 from pydantic import BaseModel,EmailStr,validator
 
 
 class tokenData(BaseModel):
     token_id:str
     status:str
+    comments: Optional[str] = None
+
 
 class userModel(BaseModel):
     email:EmailStr
